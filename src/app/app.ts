@@ -4,17 +4,25 @@ import { ITracker } from "../types";
 class App extends EventEmitter {
   private trackers: ITracker<unknown>[] = [];
 
+  private isTracking = false;
+
   constructor(trackers: ITracker<unknown>[]) {
     super();
 
     this.trackers = trackers;
 
     this.on(App.events.START_TRACKING, () => {
-      this.startTracking();
+      if (!this.isTracking) {
+        this.startTracking();
+        this.toggleTrackingStatus();
+      }
     });
 
     this.on(App.events.STOP_TRACKING, () => {
-      this.stopTracking();
+      if (this.isTracking) {
+        this.stopTracking();
+        this.toggleTrackingStatus();
+      }
     });
   }
 
@@ -40,13 +48,15 @@ class App extends EventEmitter {
   }
 
   appendTrackers(trackers: ITracker<unknown>[] | ITracker<unknown>): void {
-    if (trackers instanceof Array) {
-      this.trackers.push(...trackers);
-    } else {
-      this.trackers.push(trackers);
-    }
+    const newTrackers = trackers instanceof Array ? trackers : [trackers];
 
-    this.startTracking();
+    if (this.isTracking) newTrackers.forEach((tracker) => tracker.start());
+
+    this.trackers.push(...newTrackers);
+  }
+
+  private toggleTrackingStatus() {
+    this.isTracking = !this.isTracking;
   }
 }
 
