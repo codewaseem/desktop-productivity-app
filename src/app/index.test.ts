@@ -1,5 +1,5 @@
-import { EventEmitter } from "events";
 import { ITracker } from "../types";
+import App from "./app";
 
 const appUsageTracker: ITracker<void> = {
   getData: jest.fn(),
@@ -18,42 +18,6 @@ const internetUsageTracker: ITracker<void> = {
   start: jest.fn(),
   stop: jest.fn(),
 };
-
-class App extends EventEmitter {
-  private trackers: ITracker<unknown>[] = [];
-
-  constructor(trackers: ITracker<unknown>[]) {
-    super();
-
-    this.trackers = trackers;
-
-    this.on(App.events.START_TRACKING, () => {
-      this.startTracking();
-    });
-  }
-
-  static events = {
-    START_TRACKING: "start-tracking",
-    STARTED_TRACKING: "started-tracking",
-  };
-
-  startTracking() {
-    this.trackers.forEach((tracker) => {
-      tracker.start();
-    });
-    this.emit(App.events.STARTED_TRACKING);
-  }
-
-  appendTrackers(trackers: ITracker<unknown>[] | ITracker<unknown>) {
-    if (trackers instanceof Array) {
-      this.trackers.push(...trackers);
-    } else {
-      this.trackers.push(trackers);
-    }
-
-    this.startTracking();
-  }
-}
 
 describe("App", () => {
   let app: App;
@@ -96,5 +60,22 @@ describe("App", () => {
     });
 
     app.emit(App.events.START_TRACKING);
+  });
+
+  it("emitting stop event should stop all the trackers", () => {
+    const stopTrackingSpy = jest.spyOn(app, "stopTracking");
+
+    app.emit(App.events.STOP_TRACKING);
+
+    expect(stopTrackingSpy).toHaveBeenCalled();
+  });
+
+  it("should emit stopped tracking event after all trackers are stopped", (done) => {
+    app.on(App.events.STOPPED_TRACKING, () => {
+      expect(true).toBeTruthy();
+      done();
+    });
+
+    app.emit(App.events.STOP_TRACKING);
   });
 });
