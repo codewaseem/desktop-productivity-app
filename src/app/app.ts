@@ -27,7 +27,11 @@ class App extends EventEmitter {
     });
 
     this.on(App.events.START_POMODORO, () => {
-      this.startPomodoro();
+      if (!this.isPomodoroRunning) this.startPomodoro();
+    });
+
+    this.on(App.events.STOP_POMODORO, () => {
+      if (this.isPomodoroRunning) this.stopPomodoro();
     });
   }
 
@@ -44,6 +48,7 @@ class App extends EventEmitter {
     STOP_TRACKING: "stop-tracking",
     STOPPED_TRACKING: "stopped-tracking",
     START_POMODORO: "start-pomodoro",
+    STOP_POMODORO: "stop-pomodoro",
     STOPPED_POMODORO: "stopped-pomodoro",
   };
 
@@ -51,14 +56,14 @@ class App extends EventEmitter {
     POMODORO_TIME: 1000 * 60 * 25, // 25 minutes
   };
 
-  startTracking(): void {
+  private startTracking(): void {
     this.trackers.forEach((tracker) => {
       tracker.start();
     });
     this.emit(App.events.STARTED_TRACKING);
   }
 
-  stopTracking(): void {
+  private stopTracking(): void {
     this.trackers.forEach((tracker) => {
       tracker.stop();
     });
@@ -73,12 +78,16 @@ class App extends EventEmitter {
     this.trackers.push(...newTrackers);
   }
 
-  async startPomodoro() {
+  private async startPomodoro() {
     this.pomodoroStartedAt = Date.now();
     this.isPomodoroRunning = true;
 
     await this.delay(App.constants.POMODORO_TIME);
 
+    this.stopPomodoro();
+  }
+
+  private stopPomodoro() {
     this.isPomodoroRunning = false;
     this.pomodoroStartedAt = 0;
     this.emit(App.events.STOPPED_POMODORO);

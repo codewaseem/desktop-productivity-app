@@ -121,16 +121,18 @@ describe("App: stopTracking", () => {
   });
 });
 
-describe("App: startPomodoroSession", () => {
+describe("App: pomodoroTimer", () => {
   let app: App;
+  let startPomodoroSpy: jest.SpyInstance;
+  let stopPomodoroSpy: jest.SpyInstance<void>;
 
   beforeEach(() => {
     app = new App([appUsageTracker, keyboardMouseTracker]);
+    startPomodoroSpy = jest.spyOn(app, "startPomodoro");
+    stopPomodoroSpy = jest.spyOn(app, "stopPomodoro");
   });
 
   it("should be able to start a pomodoro session", () => {
-    const startPomodoroSpy = jest.spyOn(app, "startPomodoro");
-
     app.emit(App.events.START_POMODORO);
 
     expect(startPomodoroSpy).toHaveBeenCalled();
@@ -164,5 +166,34 @@ describe("App: startPomodoroSession", () => {
       expect(app.currentPomodoroTime).toBe(0);
       done();
     });
+  });
+
+  it("already started pomodoro timer should do nothing", () => {
+    app.emit(App.events.START_POMODORO);
+    app.emit(App.events.START_POMODORO);
+
+    expect(startPomodoroSpy).toBeCalledTimes(1);
+  });
+
+  it("can manually stop pomodoro timer", (done) => {
+    app.emit(App.events.START_POMODORO);
+
+    app.on(App.events.STOPPED_POMODORO, () => {
+      expect(app.currentPomodoroTime).toBe(0);
+      done();
+    });
+
+    app.emit(App.events.STOP_POMODORO);
+
+    expect(stopPomodoroSpy).toHaveBeenCalled();
+  });
+
+  it("already stopped pomodoro timer should do nothing", () => {
+    app.emit(App.events.START_POMODORO);
+
+    app.emit(App.events.STOP_POMODORO);
+    app.emit(App.events.STOP_POMODORO);
+
+    expect(stopPomodoroSpy).toHaveBeenCalledTimes(1);
   });
 });
