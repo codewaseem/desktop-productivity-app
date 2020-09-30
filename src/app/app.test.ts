@@ -1,5 +1,8 @@
+import { promisify } from "util";
 import { ITracker } from "../types";
 import App from "./app";
+
+const delay = promisify(setTimeout);
 
 const appUsageTracker: ITracker<void> = {
   getData: jest.fn(),
@@ -19,26 +22,17 @@ const internetUsageTracker: ITracker<void> = {
   stop: jest.fn(),
 };
 
-describe("App", () => {
+describe("App: startTracking", () => {
   let app: App;
   let startTrackingSpy: jest.SpyInstance<void>;
-  let stopTrackingSpy: jest.SpyInstance<void>;
 
   beforeEach(() => {
     app = new App([appUsageTracker, keyboardMouseTracker]);
     startTrackingSpy = jest.spyOn(app, "startTracking");
-    stopTrackingSpy = jest.spyOn(app, "stopTracking");
   });
 
   afterEach(() => {
     jest.resetAllMocks();
-  });
-
-  it("starting tracker more than once should not call startTracking twice", () => {
-    app.emit(App.events.START_TRACKING);
-    app.emit(App.events.START_TRACKING);
-
-    expect(startTrackingSpy).toHaveBeenCalledTimes(1);
   });
 
   it("when start event is emitted, app should start tracking", () => {
@@ -47,6 +41,13 @@ describe("App", () => {
     expect(startTrackingSpy).toHaveBeenCalled();
     expect(appUsageTracker.start).toHaveBeenCalled();
     expect(keyboardMouseTracker.start).toHaveBeenCalled();
+  });
+
+  it("already started tracker should not start tracking again", () => {
+    app.emit(App.events.START_TRACKING);
+    app.emit(App.events.START_TRACKING);
+
+    expect(startTrackingSpy).toHaveBeenCalledTimes(1);
   });
 
   it("should be able to add new trackers( during run-time)", () => {
@@ -70,14 +71,19 @@ describe("App", () => {
 
     app.emit(App.events.START_TRACKING);
   });
+});
 
-  it("emitting stop event twice should only call stopTracking once", () => {
-    app.emit(App.events.START_TRACKING);
+describe("App: stopTracking", () => {
+  let app: App;
+  let stopTrackingSpy: jest.SpyInstance<void>;
 
-    app.emit(App.events.STOP_TRACKING);
-    app.emit(App.events.STOP_TRACKING);
+  beforeEach(() => {
+    app = new App([appUsageTracker, keyboardMouseTracker]);
+    stopTrackingSpy = jest.spyOn(app, "stopTracking");
+  });
 
-    expect(stopTrackingSpy).toHaveBeenCalledTimes(1);
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it("emitting stop event should stop all the trackers", () => {
@@ -94,6 +100,15 @@ describe("App", () => {
     expect(internetUsageTracker.stop).toHaveBeenCalled();
   });
 
+  it("emitting stop event twice should only call stopTracking once", () => {
+    app.emit(App.events.START_TRACKING);
+
+    app.emit(App.events.STOP_TRACKING);
+    app.emit(App.events.STOP_TRACKING);
+
+    expect(stopTrackingSpy).toHaveBeenCalledTimes(1);
+  });
+
   it("should emit stopped tracking event after all trackers are stopped", (done) => {
     app.emit(App.events.START_TRACKING);
 
@@ -103,5 +118,51 @@ describe("App", () => {
     });
 
     app.emit(App.events.STOP_TRACKING);
+  });
+});
+
+describe("App: startPomodoroSession", () => {
+  let app: App;
+
+  beforeEach(() => {
+    app = new App([appUsageTracker, keyboardMouseTracker]);
+  });
+
+  it("should be able to start a pomodoro session", () => {
+    const startPomodoroSpy = jest.spyOn(app, "startPomodoro");
+
+    app.emit(App.events.START_POMODORO);
+
+    expect(startPomodoroSpy).toHaveBeenCalled();
+  });
+
+  it("should automatically stop the pomodoro session once the session time is completed", (done) => {
+    jest.useFakeTimers();
+
+    app.emit(App.events.START_POMODORO);
+
+    jest.advanceTimersByTime(App.constants.POMODORO_TIME);
+
+    app.on(App.events.STOPPED_POMODORO, () => {
+      done();
+    });
+  });
+
+  it("should be able to track the current pomodoro session time", async (done) => {
+    App.constants.POMODORO_TIME = 1000 * 5; // run for 5 secs total
+
+    jest.useRealTimers();
+
+    expect(app.currentPomodoroTime).toBe(0);
+    app.emit(App.events.START_POMODORO);
+
+    // check status after some time
+    await delay(3);
+    expect(app.currentPomodoroTime).toBeGreaterThan(2);
+
+    app.on(App.events.STOPPED_POMODORO, () => {
+      expect(app.currentPomodoroTime).toBe(0);
+      done();
+    });
   });
 });

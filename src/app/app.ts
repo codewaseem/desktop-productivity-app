@@ -3,8 +3,9 @@ import { ITracker } from "../types";
 
 class App extends EventEmitter {
   private trackers: ITracker<unknown>[] = [];
-
+  private pomodoroStartedAt = 0;
   private isTracking = false;
+  private isPomodoroRunning = false;
 
   constructor(trackers: ITracker<unknown>[]) {
     super();
@@ -24,6 +25,17 @@ class App extends EventEmitter {
         this.toggleTrackingStatus();
       }
     });
+
+    this.on(App.events.START_POMODORO, () => {
+      this.startPomodoro();
+    });
+  }
+
+  get currentPomodoroTime() {
+    if (this.isPomodoroRunning) {
+      return Date.now() - this.pomodoroStartedAt;
+    }
+    return 0;
   }
 
   static events = {
@@ -31,6 +43,12 @@ class App extends EventEmitter {
     STARTED_TRACKING: "started-tracking",
     STOP_TRACKING: "stop-tracking",
     STOPPED_TRACKING: "stopped-tracking",
+    START_POMODORO: "start-pomodoro",
+    STOPPED_POMODORO: "stopped-pomodoro",
+  };
+
+  static constants = {
+    POMODORO_TIME: 1000 * 60 * 25, // 25 minutes
   };
 
   startTracking(): void {
@@ -53,6 +71,25 @@ class App extends EventEmitter {
     if (this.isTracking) newTrackers.forEach((tracker) => tracker.start());
 
     this.trackers.push(...newTrackers);
+  }
+
+  async startPomodoro() {
+    this.pomodoroStartedAt = Date.now();
+    this.isPomodoroRunning = true;
+
+    await this.delay(App.constants.POMODORO_TIME);
+
+    this.isPomodoroRunning = false;
+    this.pomodoroStartedAt = 0;
+    this.emit(App.events.STOPPED_POMODORO);
+  }
+
+  private delay(ms: number) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, ms);
+    });
   }
 
   private toggleTrackingStatus() {
