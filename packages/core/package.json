@@ -1,0 +1,20 @@
+{
+  "name": "@dp-app/core",
+  "version": "0.0.1",
+  "description": "A desktop productivity tracking app. Core/Common functionality",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "author": "codewaseem@gmail.com <Waseem Ahmed>",
+  "license": "MIT",
+  "scripts": {
+    "start": "yarn build && node dist/index.js",
+    "run-ts-script": "tsnd --respawn ",
+    "build": "yarn tsc",
+    "dev": "yarn run-ts-script src/index.ts",
+    "test": "yarn jest",
+    "test:watch": "yarn jest --watch"
+  },
+  "dependencies": {
+    "dotenv": "^8.2.0"
+  }
+}

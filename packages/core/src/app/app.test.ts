@@ -24,11 +24,11 @@ const internetUsageTracker: ITracker<void> = {
 
 describe("App: startTracking", () => {
   let app: App;
-  let startTrackingSpy: jest.SpyInstance<void>;
+  let startTrackingSpy: jest.SpyInstance;
 
   beforeEach(() => {
     app = new App([appUsageTracker, keyboardMouseTracker]);
-    startTrackingSpy = jest.spyOn(app, "startTracking");
+    startTrackingSpy = jest.spyOn<any, any>(app, "startTracking");
   });
 
   afterEach(() => {
@@ -79,7 +79,7 @@ describe("App: stopTracking", () => {
 
   beforeEach(() => {
     app = new App([appUsageTracker, keyboardMouseTracker]);
-    stopTrackingSpy = jest.spyOn(app, "stopTracking");
+    stopTrackingSpy = jest.spyOn<any, any>(app, "stopTracking");
   });
 
   afterEach(() => {
@@ -128,8 +128,8 @@ describe("App: pomodoroTimer", () => {
 
   beforeEach(() => {
     app = new App([appUsageTracker, keyboardMouseTracker]);
-    startPomodoroSpy = jest.spyOn(app, "startPomodoro");
-    stopPomodoroSpy = jest.spyOn(app, "stopPomodoro");
+    startPomodoroSpy = jest.spyOn<any, any>(app, "startPomodoro");
+    stopPomodoroSpy = jest.spyOn<any, any>(app, "stopPomodoro");
   });
 
   it("should be able to start a pomodoro session", () => {

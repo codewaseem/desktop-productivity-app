@@ -35,7 +35,7 @@ class App extends EventEmitter {
     });
   }
 
-  get currentPomodoroTime() {
+  get currentPomodoroTime(): number {
     if (this.isPomodoroRunning) {
       return Date.now() - this.pomodoroStartedAt;
     }

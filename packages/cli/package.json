@@ -1,0 +1,19 @@
+{
+  "name": "@dp-app/cli-client",
+  "version": "0.0.1",
+  "description": "CLI client for the desktop productivity app",
+  "main": "dist/index.js",
+  "author": "codewaseem@gmail.com <Waseem Ahmed>",
+  "license": "MIT",
+  "scripts": {
+    "start": "yarn build && node dist/index.js",
+    "run-ts-script": "tsnd --respawn ",
+    "build": "yarn tsc",
+    "dev": "yarn run-ts-script src/index.ts",
+    "test": "yarn jest",
+    "test:watch": "yarn jest --watch"
+  },
+  "dependencies": {
+    "@dp-app/core": "^0.0.1"
+  }
+}

@@ -1,34 +1,27 @@
 {
-  "name": "desktop-productivity-app",
-  "version": "0.0.1",
-  "description": "A desktop productivity tracking app.",
-  "main": "dist/index.js",
-  "author": "codewaseem@gmail.com <Waseem Ahmed>",
-  "license": "MIT",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "start": "yarn build && node dist/index.js",
-    "run-ts-script": "tsnd --respawn ",
-    "build": "yarn tsc",
-    "dev": "yarn run-ts-script src/index.ts",
-    "test": "yarn jest",
-    "test:watch": "yarn jest --watch",
-    "eslint:fix": "eslint --cache --fix",
-    "format:fix": "prettier --write"
+    "build": "lerna run build",
+    "eslint:fix": "eslint --cache --fix packages/* ./",
+    "format:fix": "prettier --write packages/*"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.10",
-    "@types/node": "^14.11.2",
+    "@types/jest": "^26.0.14",
     "@typescript-eslint/eslint-plugin": "^3.9.1",
     "@typescript-eslint/parser": "^3.9.1",
     "eslint": "^7.7.0",
     "eslint-config-prettier": "^6.11.0",
     "husky": ">=4",
-    "jest": "^26.4.0",
+    "jest": "^26.4.2",
+    "lerna": "^3.22.1",
     "lint-staged": ">=10",
     "prettier": "2.0.5",
-    "ts-jest": "^26.2.0",
+    "ts-jest": "^26.4.1",
     "ts-node-dev": "^1.0.0-pre.63",
-    "typescript": "^3.9.7"
+    "typescript": "^4.0.3"
   },
   "husky": {
     "hooks": {
@@ -40,8 +33,5 @@
       "yarn eslint:fix",
       "yarn format:fix"
     ]
-  },
-  "dependencies": {
-    "dotenv": "^8.2.0"
   }
 }
