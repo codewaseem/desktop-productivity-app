@@ -14,6 +14,11 @@
     "test:watch": "yarn jest --watch"
   },
   "dependencies": {
-    "@dp-app/core": "^0.0.1"
+    "@dp-app/core": "^0.0.1",
+    "ink": "^3.0.7",
+    "react": "^16.13.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.9.49"
   }
 }
