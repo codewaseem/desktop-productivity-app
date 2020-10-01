@@ -1,5 +1,3 @@
-export const add = (a: number, b: number, c: number): number => a + b + c;
+import App from "./app/app";
 
-if (require.main == module) {
-  console.log(`Adding a + b = `, add(5, 5, 5));
-}
+export const app = new App([]);
