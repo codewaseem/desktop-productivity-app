@@ -42,6 +42,10 @@ class App extends EventEmitter {
     return 0;
   }
 
+  get pomodoroCountdown(): number {
+    return App.constants.POMODORO_TIME - this.currentPomodoroTime;
+  }
+
   static events = {
     START_TRACKING: "start-tracking",
     STARTED_TRACKING: "started-tracking",

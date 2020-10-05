@@ -166,6 +166,8 @@ describe("App: pomodoroTimer", () => {
       expect(app.currentPomodoroTime).toBe(0);
       done();
     });
+
+    jest.clearAllTimers();
   });
 
   it("already started pomodoro timer should do nothing", () => {
@@ -173,6 +175,27 @@ describe("App: pomodoroTimer", () => {
     app.emit(App.events.START_POMODORO);
 
     expect(startPomodoroSpy).toBeCalledTimes(1);
+  });
+
+  it("should have pomodoro count down timer", async (done) => {
+    App.constants.POMODORO_TIME = 1000 * 5; // run for 5 secs total
+
+    jest.clearAllTimers();
+
+    jest.useRealTimers();
+
+    expect(app.pomodoroCountdown).toBe(App.constants.POMODORO_TIME);
+
+    app.emit(App.events.START_POMODORO);
+
+    // check status after some time
+    await delay(3000);
+    expect(app.pomodoroCountdown).toBeLessThanOrEqual(2000);
+
+    app.on(App.events.STOPPED_POMODORO, () => {
+      expect(app.pomodoroCountdown).toBe(App.constants.POMODORO_TIME);
+      done();
+    });
   });
 
   it("can manually stop pomodoro timer", (done) => {
