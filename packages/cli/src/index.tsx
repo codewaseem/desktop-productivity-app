@@ -6,6 +6,7 @@ const Counter = () => {
   const [countDown, setCountDown] = useState(
     new Date(app.pomodoroCountdown).toUTCString().substr(17, 8)
   );
+  const [showDots, setShowDots] = useState(true);
 
   useEffect(() => {
     setPomodoroTime(1000 * 60);
@@ -14,8 +15,13 @@ const Counter = () => {
       setCountDown(new Date(app.pomodoroCountdown).toUTCString().substr(17, 8));
     }, 100);
 
+    const timer2 = setInterval(() => {
+      setShowDots((prevValue) => !prevValue);
+    }, 500);
+
     return () => {
       clearInterval(timer);
+      clearInterval(timer2);
     };
   }, []);
 
@@ -31,6 +37,7 @@ const Counter = () => {
         App by Waseem Ahmed
       </Text>
       <Text inverse color="green">
+        {app.currentPomodoroTime && showDots ? ":: " : "   "}
         {countDown} time left
       </Text>
     </Box>
