@@ -1,27 +1,17 @@
-import { app } from "@dp-app/core";
+import { app, EventNames, setPomodoroTime } from "@dp-app/core";
 import { Box, render, Text } from "ink";
 import React, { useEffect, useState } from "react";
 
-() => {
-  app.emit("start-pomodoro");
-
-  setInterval(() => {
-    const time = new Date(app.currentPomodoroTime);
-    console.log(
-      `${time.getUTCMinutes()}:${time.getUTCSeconds()}`,
-      time.toTimeString(),
-      time.toLocaleTimeString(),
-      time.toUTCString().substr(17, 8)
-    );
-  }, 5000);
-};
-
 const Counter = () => {
-  const [counter, setCounter] = useState(0);
+  const [countDown, setCountDown] = useState(
+    new Date(app.pomodoroCountdown).toUTCString().substr(17, 8)
+  );
 
   useEffect(() => {
+    setPomodoroTime(1000 * 60);
+    app.emit(EventNames.START_POMODORO);
     const timer = setInterval(() => {
-      setCounter((previousCounter) => previousCounter + 1);
+      setCountDown(new Date(app.pomodoroCountdown).toUTCString().substr(17, 8));
     }, 100);
 
     return () => {
@@ -41,7 +31,7 @@ const Counter = () => {
         App by Waseem Ahmed
       </Text>
       <Text inverse color="green">
-        {counter} tests passed
+        {countDown} time left
       </Text>
     </Box>
   );
