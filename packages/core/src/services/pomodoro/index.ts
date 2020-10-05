@@ -8,6 +8,7 @@ export default class Pomodoro {
   private state: PomodoroState = PomodoroState.Stopped;
   private _startedAt = 0;
   private _pausedAt = 0;
+  private _timerId: any;
   static DEFAULT_COUNTDOWN_TIME = 1000 * 60 * 25;
 
   get countdown(): number {
@@ -59,10 +60,10 @@ export default class Pomodoro {
       this.state = PomodoroState.Started;
       this._startedAt = Date.now();
 
-      const timerId = setInterval(() => {
+      this._timerId = setInterval(() => {
         if (this.countdown <= 0) {
           this.stop();
-          clearInterval(timerId);
+          clearInterval(this._timerId);
         }
       }, 100);
     }
@@ -71,6 +72,7 @@ export default class Pomodoro {
   stop(): void {
     if (this.isStopped) return;
 
+    clearInterval(this._timerId);
     this.state = PomodoroState.Stopped;
     this.startedAt = 0;
   }

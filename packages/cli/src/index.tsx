@@ -20,8 +20,9 @@ const Counter = () => {
     };
   }, []);
 
-  useInput((input, key) => {
+  useInput((input) => {
     if (input == "q") {
+      pomodoro.stop();
       exit();
     }
 
